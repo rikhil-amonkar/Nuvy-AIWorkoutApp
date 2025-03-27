@@ -4,6 +4,7 @@ import math
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.preprocessing import StandardScaler
+from sklearn.preprocessing import LabelEncoder
 from sklearn.metrics import accuracy_score
 from sklearn.neighbors import NearestNeighbors
 
@@ -29,23 +30,33 @@ knn = NearestNeighbors(n_neighbors=5)
 knn.fit(features)
 
 # Calculate the nearest neighbors
-def recommend_meals(calories_left, num_recommendations=5):
+def recommend_meals(calories_left, meals_wanted):
+    if calories_left <= 0:
+        return None, 0
+    
     # Normalize the calories
     user_input = np.array([[calories_left]])
     user_input = scalar.transform(user_input)
 
     # Find the nearest neighbors and retrieve the meal name
-    distances, indices = knn.kneighbors(user_input, n_neighbors=num_recommendations)
-    recommendations = food_data_df.iloc[indices[0], 1] # Recipe name is second column
-    recommendation_cal = food_data_df.iloc[indices[0], 8] # Calories is fifth column
+    indices = knn.kneighbors(user_input, n_neighbors=meals_wanted)
+    rec_meal = food_data_df.iloc[indices[0][0]] # Recipe name is second column
 
-    return recommendations, recommendation_cal
+    # For each meal recommended, add calories and name to final list
+    plan_meals = []
+    for index in indices[0]:
+        rec_meal = food_data_df.iloc[index]
+        meal_name = rec_meal['Recipe_name'].iloc[0]
+        meal_calories = float(rec_meal['Calories(kcal)'].iloc[0])
+        plan_meals.append((meal_name, meal_calories))
+
+    return plan_meals
 
 # Calculate the average bmr without activity level
 def calculate_bmr(user_age, user_sex, user_height, user_weight):
     
     # Basal Metabolic Rate (BMR) calculation based on sex and Harris-Benedict equation
-    if user_sex == "M":
+    if user_sex.upper() == "M":
         BMR = (10 * user_weight) + (6.25 * user_height) - (5 * user_age) + 5
         daily_bmr = BMR * 1.2
     else:
@@ -69,7 +80,9 @@ def calculate_daily_calories(daily_bmr, activity_level):
 
     return daily_cal
 
+# Run the program
 if __name__ == "__main__":
+
     # User body composition
     user_age = int(input("Enter your age: "))
     user_sex = str(input("Enter your sex (M/F): "))
@@ -100,33 +113,57 @@ if __name__ == "__main__":
     calories_consumed = int(input("\nEnter the number of calories you have consumed today: "))
     calories_left = daily_cal - calories_consumed
 
-    # Recommend meals based on calories left
-    recommendations, recommendation_cals = recommend_meals(calories_left)
-    print(f"\nHere are some meal recommendations for you based on the {calories_left:.2f} kcal you have left today:\n")
+    # Make sure the user has calories left
+    if calories_left >= 0:
 
-    # Display the recommendations and the macro breakdown
-    for i in range(len(recommendations)):
-        print(f"{i+1}. {recommendations.iloc[i]} with {recommendation_cals.iloc[i]:.2f} kcal\n")
+        # # Recommend meals based on calories left
+        # recommendations, recommendation_cals = recommend_meals(calories_left)
+        # print(f"\nHere are some meal recommendations for you based on the {calories_left:.2f} kcal you have left today:\n")
 
-    response = str(input("Would you like to see the nutritional breakdown of any meal (Y/N)?: "))
+        # # Display the recommendations and the macro breakdown
+        # for i in range(len(recommendations)):
+        #     print(f"{i+1}. {recommendations.iloc[i]}\n   Calories: {recommendation_cals.iloc[i]:.2f} kcal\n")
 
-    if response == "Y":
-        meal_num = int(input("Enter the meal number you would like to see the nutritional breakdown for: "))
-        print(f"\nHere is the nutritional breakdown for {recommendations.iloc[meal_num-1]}:")
-        df_filtered = food_data_df.drop(columns=['Extraction_day', 'Extraction_time'])
+        # response = str(input("Would you like to see the nutritional breakdown of any meal (Y/N)?: "))
 
-        selected_meal = recommendations.iloc[meal_num-1]
-        meal_row = df_filtered[df_filtered['Recipe_name'] == selected_meal]
+        # if response == "Y":
+        #     meal_num = int(input("Enter the meal number you would like to see the nutritional breakdown for: "))
+        #     print(f"\nHere is the nutritional breakdown for {recommendations.iloc[meal_num-1]}:")
+        #     df_filtered = food_data_df.drop(columns=['Extraction_day', 'Extraction_time'])
 
-        if not meal_row.empty:
-            print("\n", selected_meal)
-            print(meal_row.iloc[0, 2:])  # Select only the first matching row
-        else:
-            print("Error: Meal not found in dataset.")
-        print("")
+        #     selected_meal = recommendations.iloc[meal_num-1]
+        #     meal_row = df_filtered[df_filtered['Recipe_name'] == selected_meal]
 
+        #     if not meal_row.empty:
+        #         print("\n", selected_meal)
+        #         print(meal_row.iloc[0, 2:])  # Select only the first matching row
+        #     else:
+        #         print("Error: Meal not found in dataset.")
+        #     print("")
+
+        # else:
+        #     print("Thank you for using the meal recommendation system!")
+
+        # Ask user for their number of meals
+        meals_wanted = int(input("How many more meals do you plan to eat today?: "))
+        print(f"Here is a meal plan consisting of {meals_wanted} meals to reach your {calories_left:.2f} kcal for the day:\n")
+
+        # Update the nearest-neighbor meal based on meals wanted
+        plan_meals = recommend_meals(calories_left, meals_wanted)
+        for i, (meal_name, meal_calories) in enumerate(plan_meals, start=1):
+            if meal_name is None:
+                print("No suitable meal found.")
+                break
+
+            # Print each meal and update new calories left
+            print(f"{i}. {meal_name}\n   Calories: {meal_calories:.2f}\n")
+            calories_left -= meal_calories
+
+            if calories_left <= 0:
+                break
+    
     else:
+        print("You have exceeded your daily calorie intake. Please try again tomorrow.")
         print("Thank you for using the meal recommendation system!")
 
-    
 
