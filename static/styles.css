@@ -10,10 +10,10 @@
 }
 
 :root {
-    --bg-color: #000737;
+    --bg-color: #ffeece;
     --second-bg-color: #323946;
-    --text-color: #fff;
-    --main-color: #0ef;
+    --text-color: #19b51b;
+    --main-color: rgb(47, 41, 30);
 }
 
 html {
@@ -50,4 +50,12 @@ body {
     font-size: 1.7rem;
     color: var(--text-color);
     margin-left: 4rem;
+}
+
+.navbar :hover {
+    color: var(--main-color)
+}
+
+.nutrition_input {
+    color: black;
 }
