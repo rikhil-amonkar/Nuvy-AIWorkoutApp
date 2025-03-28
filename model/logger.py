@@ -1,29 +1,31 @@
 import pandas as pd
-import numpy as np
-from sklearn.preprocessing import StandardScaler
-from sklearn.preprocessing import LabelEncoder
 
 # Load the data
-nutrients_data = pd.read_csv("datasets/foodstruct_nutritional_facts.csv")
+nutrients_data = pd.read_csv("datasets/ultimate_food_data.csv")
 
 # Process the data
 nutrients_data_df = pd.DataFrame(nutrients_data)
 
-# Replace all important external features with NaN values to mean values
-nutrients_data_df['Calcium'].fillna(nutrients_data_df['Calcium'].mean(), inplace=True)
-nutrients_data_df['Cholesterol'].fillna(nutrients_data_df['Cholesterol'].mean(), inplace=True)
-nutrients_data_df['Fiber'].fillna(nutrients_data_df['Fiber'].mean(), inplace=True)
-nutrients_data_df['Iron'].fillna(nutrients_data_df['Iron'].mean(), inplace=True)
-nutrients_data_df['Magnesium'].fillna(nutrients_data_df['Magnesium'].mean(), inplace=True)
-nutrients_data_df['Net carbs'].fillna(nutrients_data_df['Net carbs'].mean(), inplace=True)
-nutrients_data_df['Saturated Fat'].fillna(nutrients_data_df['Saturated Fat'].mean(), inplace=True)
-nutrients_data_df['Sodium'].fillna(nutrients_data_df['Sodium'].mean(), inplace=True)
-nutrients_data_df['Trans Fat'].fillna(nutrients_data_df['Trans Fat'].mean(), inplace=True)
+# Remove all duplicate food names from the combined dataset
+nutrients_data_df['Food Name'] = nutrients_data_df['Food Name'].str.lower()
+nutrients_data_df = nutrients_data_df.drop_duplicates(subset=['Food Name'], keep='first')  # Keeps the first occurrence
 
+# Replace all important external features with NaN values to mean values
+nutrients_data_df.fillna({'Cholesterol': nutrients_data_df['Cholesterol'].mean()}, inplace=True)
+nutrients_data_df.fillna({'Fiber': nutrients_data_df['Fiber'].mean()}, inplace=True)
+nutrients_data_df.fillna({'Saturated Fat': nutrients_data_df['Saturated Fat'].mean()}, inplace=True)
+nutrients_data_df.fillna({'Sodium': nutrients_data_df['Sodium'].mean()}, inplace=True)
+nutrients_data_df.fillna({'Sugar': nutrients_data_df['Sugar'].mean()}, inplace=True)
+
+# Running the entire program
 if __name__ == "__main__":
 
+    # Set initial empty values for food log and macros
     food_log = {}
     total_calories = 0
+    total_protein = 0
+    total_carbs = 0
+    total_fats = 0
 
     # Continuously allow user to enter food until done
     while True:
@@ -39,8 +41,8 @@ if __name__ == "__main__":
 
             valid_choices = {}
             for i, (index, row) in enumerate(matching_rows.iterrows(), start=1):
-                print(f"{i}. {row['Food Name']}") # Print the food name
-                print(f"Calories(kcal): {row['Calories']}\n") # Print the food calorie count
+                print(f"\n{i}. {row['Food Name']}") # Print the food name
+                print(f"Calories(kcal) per 100(g): {row['Calories']}") # Print the food calorie count
                 valid_choices[i] = row
 
             while True:
@@ -50,21 +52,39 @@ if __name__ == "__main__":
                     if selection.lower() == 'exit':
                         break
                     
+                    # Process the selection and display components of food
                     selection = int(selection)
                     if selection in valid_choices:
+                        grams = int(input("Enter the amount you consumed (grams): "))
                         selected_food = valid_choices[selection]
+                        grams_ratio = grams / 100 # Ratio the grams consumed based on 100g kcal averages
+                        
+                        # Extract and asign components of selected food
                         food_name = selected_food['Food Name']
-                        food_cals = selected_food['Calories']
-                        food_log[food_name] = food_cals
-                        total_calories += food_cals
-                        print(f"You added #{selection} - {food_name} to your log.")
+                        food_cals = selected_food['Calories'] * grams_ratio # Adjust the calories based on grams
+                        food_protein = selected_food['Protein'] * grams_ratio # Adjust the protein based on grams
+                        food_carbs = selected_food['Carbs'] * grams_ratio # Adjust the carbs based on grams
+                        food_fats = selected_food['Fats'] * grams_ratio # Adjust the fat based on grams
+
+                        # Log the food, calories, and grams into a nested dictionary
+                        food_log[food_name] = {"Calories(kcal)": food_cals, "Grams(g)": grams}
+
+                        total_calories += food_cals # Update total calories
+                        total_protein += food_protein # Update total protein
+                        total_carbs += food_carbs # Update total carbs
+                        total_fats += food_fats # Update total fat
+
+                        print(f"You added {grams} of {food_name} to your log.")
                         print(f"\nCurrent food log:\n{food_log}")
-                        print(f"Total Calories Today: {total_calories} kcal")
+                        print(f"\nTotal Calories Today: {total_calories:.2f} kcal")
+                        print(f"Total Protien Intake Today: {total_protein:.2f} g")
+                        print(f"Total Carb Intake Today: {total_carbs:.2f} g")
+                        print(f"Total Fat Intake Today: {total_fats:.2f} g")
                     else:
                         print("Invalid selectio. Please enter a valid food choice.")
-                except ValueError:
+                except ValueError: # Check for input error
                     print("Invalid input. Please enter a numeric value.")
-                except Exception as e:
+                except Exception as e: # Check for input error
                     print(f"Error: {e}")
         else:
             print("Food not found.")
