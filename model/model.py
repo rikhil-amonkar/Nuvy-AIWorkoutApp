@@ -19,7 +19,7 @@ food_data_df = food_data_df.dropna() # Data has no missing values but saftey mea
 food_data_df['Calories(kcal)'] = (food_data_df['Fat(g)'] * 9) + (food_data_df['Carbs(g)'] * 4) + (food_data_df['Protein(g)'] * 4)
 
 # Split the data into features and target
-features = food_data_df[['Calories(kcal)']]
+features = food_data_df[['Calories(kcal)']].values
 
 # Standardize the features
 scalar = StandardScaler()
@@ -35,20 +35,34 @@ def recommend_meals(calories_left, meals_wanted):
         return None, 0
     
     # Normalize the calories
-    user_input = np.array([[calories_left]])
+    user_input = np.array([[calories_left / meals_wanted]]) # Divide calories left into even meals
     user_input = scalar.transform(user_input)
 
     # Find the nearest neighbors and retrieve the meal name
-    indices = knn.kneighbors(user_input, n_neighbors=meals_wanted)
-    rec_meal = food_data_df.iloc[indices[0][0]] # Recipe name is second column
+    distances, indices = knn.kneighbors(user_input, n_neighbors=meals_wanted)
+
+    # Extract the indices
+    neighbor_indices = indices[0]
 
     # For each meal recommended, add calories and name to final list
     plan_meals = []
-    for index in indices[0]:
+    for index in neighbor_indices:
         rec_meal = food_data_df.iloc[index]
-        meal_name = rec_meal['Recipe_name'].iloc[0]
-        meal_calories = float(rec_meal['Calories(kcal)'].iloc[0])
-        plan_meals.append((meal_name, meal_calories))
+        meal_name = rec_meal['Recipe_name']
+
+        # Check for meal duplicates
+        if meal_name in plan_meals:
+            continue
+
+        meal_calories = float(rec_meal['Calories(kcal)'])
+        meal_protein  = float(rec_meal['Protein(g)'])
+        meal_carbs  = float(rec_meal['Carbs(g)'])
+        meal_fat  = float(rec_meal['Fat(g)'])
+        meal_diet = str(rec_meal['Diet_type'])
+        plan_meals.append((meal_name, meal_calories, meal_protein, meal_carbs, meal_fat, meal_diet))
+
+        if len(plan_meals) >= meals_wanted:
+            break
 
     return plan_meals
 
@@ -98,7 +112,7 @@ if __name__ == "__main__":
     print("\n2. Lightly active (light exercise/sports 1-3 days/week)")
     print("\n3. Moderately active (moderate exercise/sports 3-5 days/week)")
     print("\n4. Very active (hard exercise/sports 6-7 days a week)")
-    print("\n 5. Super active (very hard exercise & physical job or 2x training)")
+    print("\n5. Super active (very hard exercise & physical job or 2x training)")
     activity_level = int(input("\nEnter your activity level: "))
     daily_cal = calculate_daily_calories(daily_bmr, activity_level)
 
@@ -116,47 +130,19 @@ if __name__ == "__main__":
     # Make sure the user has calories left
     if calories_left >= 0:
 
-        # # Recommend meals based on calories left
-        # recommendations, recommendation_cals = recommend_meals(calories_left)
-        # print(f"\nHere are some meal recommendations for you based on the {calories_left:.2f} kcal you have left today:\n")
-
-        # # Display the recommendations and the macro breakdown
-        # for i in range(len(recommendations)):
-        #     print(f"{i+1}. {recommendations.iloc[i]}\n   Calories: {recommendation_cals.iloc[i]:.2f} kcal\n")
-
-        # response = str(input("Would you like to see the nutritional breakdown of any meal (Y/N)?: "))
-
-        # if response == "Y":
-        #     meal_num = int(input("Enter the meal number you would like to see the nutritional breakdown for: "))
-        #     print(f"\nHere is the nutritional breakdown for {recommendations.iloc[meal_num-1]}:")
-        #     df_filtered = food_data_df.drop(columns=['Extraction_day', 'Extraction_time'])
-
-        #     selected_meal = recommendations.iloc[meal_num-1]
-        #     meal_row = df_filtered[df_filtered['Recipe_name'] == selected_meal]
-
-        #     if not meal_row.empty:
-        #         print("\n", selected_meal)
-        #         print(meal_row.iloc[0, 2:])  # Select only the first matching row
-        #     else:
-        #         print("Error: Meal not found in dataset.")
-        #     print("")
-
-        # else:
-        #     print("Thank you for using the meal recommendation system!")
-
         # Ask user for their number of meals
-        meals_wanted = int(input("How many more meals do you plan to eat today?: "))
-        print(f"Here is a meal plan consisting of {meals_wanted} meals to reach your {calories_left:.2f} kcal for the day:\n")
+        meals_wanted = int(input("How many more meals do you want to eat today?: "))
+        print(f"\nHere is a meal plan consisting of {meals_wanted} meals to reach your {calories_left:.2f} kcal for the day:\n")
 
         # Update the nearest-neighbor meal based on meals wanted
         plan_meals = recommend_meals(calories_left, meals_wanted)
-        for i, (meal_name, meal_calories) in enumerate(plan_meals, start=1):
+        for i, (meal_name, meal_calories, meal_protein, meal_carbs, meal_fats, meal_diet) in enumerate(plan_meals, start=1):
             if meal_name is None:
                 print("No suitable meal found.")
                 break
 
             # Print each meal and update new calories left
-            print(f"{i}. {meal_name}\n   Calories: {meal_calories:.2f}\n")
+            print(f"{i}. {meal_name}\n   Diet Type: {meal_diet}\n   Calories(kcal): {meal_calories:.2f}\n   Protein(g): {meal_protein:.2f}\n   Carbs(g): {meal_carbs:.2f}\n   Fats(g): {meal_fats:.2f}\n")
             calories_left -= meal_calories
 
             if calories_left <= 0:
