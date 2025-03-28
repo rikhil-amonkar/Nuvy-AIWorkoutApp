@@ -1,21 +1,35 @@
 import pandas as pd
 
-# Load the data
-nutrients_data = pd.read_csv("datasets/ultimate_food_data.csv")
+# Load the data and select only desired columns
+nutrients_data = pd.read_csv("datasets/large_food_nutrition_dataset.csv", 
+                             usecols=['Name', 'Calories', 'Fat (g)', 
+                                      'Protein (g)', 'Carbohydrate (g)', 
+                                      'Sugars (g)', 'Fiber (g)', 'Cholesterol (mg)', 
+                                      'Saturated Fats (g)', 'Trans Fatty Acids (g)', 
+                                      'Sodium (mg)'])
 
 # Process the data
 nutrients_data_df = pd.DataFrame(nutrients_data)
 
-# Remove all duplicate food names from the combined dataset
-nutrients_data_df['Food Name'] = nutrients_data_df['Food Name'].str.lower()
-nutrients_data_df = nutrients_data_df.drop_duplicates(subset=['Food Name'], keep='first')  # Keeps the first occurrence
+# Rename all columns to match consisten and simple values
+nutrients_data_df.rename(columns={'Name': 'Food Name',
+                                  'Fat (g)': 'Fats',
+                                  'Protein (g)': 'Protein',
+                                  'Carbohydrate (g)': 'Carbs',
+                                  'Sugars (g)': 'Sugars',
+                                  'Fiber (g)': 'Fiber',
+                                  'Cholesterol (mg)': 'Cholesterol',
+                                  'Saturated Fats (g)': 'Saturated Fats',
+                                  'Trans Fatty Acids (g)': 'Trans Fats',
+                                  'Sodium (mg)': 'Sodium'}, inplace=True)
 
 # Replace all important external features with NaN values to mean values
 nutrients_data_df.fillna({'Cholesterol': nutrients_data_df['Cholesterol'].mean()}, inplace=True)
 nutrients_data_df.fillna({'Fiber': nutrients_data_df['Fiber'].mean()}, inplace=True)
-nutrients_data_df.fillna({'Saturated Fat': nutrients_data_df['Saturated Fat'].mean()}, inplace=True)
+nutrients_data_df.fillna({'Saturated Fats': nutrients_data_df['Saturated Fats'].mean()}, inplace=True)
 nutrients_data_df.fillna({'Sodium': nutrients_data_df['Sodium'].mean()}, inplace=True)
-nutrients_data_df.fillna({'Sugar': nutrients_data_df['Sugar'].mean()}, inplace=True)
+nutrients_data_df.fillna({'Sugars': nutrients_data_df['Sugars'].mean()}, inplace=True)
+nutrients_data_df.fillna({'Trans Fats': nutrients_data_df['Trans Fats'].mean()}, inplace=True)
 
 # Running the entire program
 if __name__ == "__main__":
@@ -67,7 +81,7 @@ if __name__ == "__main__":
                         food_fats = selected_food['Fats'] * grams_ratio # Adjust the fat based on grams
 
                         # Log the food, calories, and grams into a nested dictionary
-                        food_log[food_name] = {"Calories(kcal)": food_cals, "Grams(g)": grams}
+                        food_log[food_name] = {"Calories(kcal)": round(food_cals, 2), "Grams(g)": round(grams, 2)}
 
                         total_calories += food_cals # Update total calories
                         total_protein += food_protein # Update total protein
