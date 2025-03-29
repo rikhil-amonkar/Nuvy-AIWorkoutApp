@@ -89,14 +89,19 @@ def calculate_daily_calories(daily_bmr, activity_level):
 
     return daily_cal
 
-# Run the program
-if __name__ == "__main__":
-
+def recommendor_projection():
     # User body composition
     user_age = int(input("Enter your age: "))
     user_sex = str(input("Enter your sex (M/F): "))
     user_height = int(input("Enter your height in cm: "))
     user_weight = int(input("Enter your weight in kg: "))
+
+    return user_age, user_sex, user_height, user_weight 
+    
+# Run the program
+def recommender_main():
+
+    user_age, user_sex, user_height, user_weight = recommendor_projection()
     daily_bmr = calculate_bmr(user_age, user_sex, user_height, user_weight)
 
     # Calculate daily calories with activity level
@@ -147,4 +152,10 @@ if __name__ == "__main__":
         print("You have exceeded your daily calorie intake. Please try again tomorrow.")
         print("Thank you for using the meal recommendation system!")
 
+    return user_age, user_sex, user_height, user_weight
 
+def run_recommender():
+    recommender_main()
+
+if __name__ == "__main__":
+    run_recommender()
