@@ -5,6 +5,10 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.linear_model import LinearRegression
 from sklearn.model_selection import train_test_split 
 from sklearn.metrics import mean_squared_error, r2_score
+from flask import Blueprint, render_template, request, jsonify
+
+# Initialize blueprint for recommender
+projector = Blueprint("projector", __name__)
 
 # Load the data
 gym_members_data = pd.read_csv("datasets/gym_members_exercise_tracking.csv")
@@ -192,6 +196,7 @@ def projector_main():
     else:
         print("Oh wow! You already hit your goal. Congrats!")
 
-
-if __name__ == "__main__":
-    projector_main()
+# Connect flask routes
+@projector.route("/")
+def index():
+    return render_template("meal-recommender.html")

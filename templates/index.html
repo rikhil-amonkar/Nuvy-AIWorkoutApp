@@ -9,37 +9,31 @@
 <body>
     <div class="container">
         <header class="header">
-            <div class="logo">Nutrivae</div>
-            <div class="user-info">
-                <nav class="navbar">
-                    <a href="index.html">
-                        <span>Home</span>
-                    </a>
-                    <a href="nutrition.html">
-                        <span>Calorie Tracker</span>
-                    </a>
-                    <a href="workouts.html">
-                        <span>Workouts</span>
-                    </a>
-                    <a href="meal-recommender.html">
-                        <span>Meal Recommender</span>
-                    </a>
-                    <a href="about-author.html">
-                        <span>About</span>
-                    </a>
-                </nav>
+            <div class="logo-container">
+                <img class="logo-simple" src="/templates/images/SimpleLogo1.PNG" alt="Nutrivae Logo" height="100" width="100">
+                <span class="logo-text">Nutrivae</span>
             </div>
+            <nav class="navbar">
+                <a class="link-tabs" href="index.html">Home</a>
+                <a class="link-tabs" href="nutrition.html">Food Log</a>
+                <a class="link-tabs" href="workouts.html">Workouts</a>
+                <a class="link-tabs" href="meal-recommender.html">Meal Recommender</a>
+                <a class="link-tabs" href="about-author.html">About</a>
+            </nav>
         </header>
-        
-        <section class="introducing-header">
-            <h1>Introducing Nutrivae</h1>
-            <h3>Smart Eating. Smarter Living.</h3>
-        </section>
 
-        <section class="all-you-need-header">
-            <h4>All you need. All in one place.</h4>
-            <button class="get-started">Get Started</button>
-        </section>
+        <div class="dashboard-grid">
+            <section class="home-page">
+                <div class="introducing-header">
+                    <h1>Introducing Nutrivae</h1>
+                    <h3 class="sub-text">Smart Eating. Smarter Living.</h3>
+                </div>
+
+                <div class="all-you-need-header">
+                <a href="/templates/nutrition.html">
+                    <button class="get-started">Get Started</button>
+                </div>
+            </section>
         </div>
     </div>
 </body>

@@ -2,6 +2,10 @@ import pandas as pd
 import numpy as np
 from sklearn.preprocessing import StandardScaler
 from sklearn.neighbors import NearestNeighbors
+from flask import Blueprint, render_template, request, jsonify
+
+# Initialize blueprint for recommender
+recommender = Blueprint("recommender", __name__)
 
 # Load data
 food_data = pd.read_csv('datasets/All_Diets.csv')
@@ -154,3 +158,7 @@ def recommender_main():
 
     return user_age, user_sex, user_height, user_weight
 
+# Connect flask routes
+@recommender.route("/")
+def index():
+    return render_template("meal-recommender.html")

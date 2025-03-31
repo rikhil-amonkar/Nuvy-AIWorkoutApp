@@ -1,7 +1,7 @@
 import pandas as pd
 from flask import Blueprint, render_template, request, jsonify
 
-# Initialize blueprint for recommender
+# Initialize blueprint for logger
 logger = Blueprint("logger", __name__)
 
 # Load the data and select only desired columns
@@ -35,7 +35,7 @@ nutrients_data_df.fillna({'Sodium': nutrients_data_df['Sodium'].mean()}, inplace
 nutrients_data_df.fillna({'Sugars': nutrients_data_df['Sugars'].mean()}, inplace=True)
 nutrients_data_df.fillna({'Trans Fats': nutrients_data_df['Trans Fats'].mean()}, inplace=True)
 
-# Selection option column for food searc
+# Selection option column for food search
 options = nutrients_data_df['Food Name'].astype(str).tolist()
 
 # Connect flask routes

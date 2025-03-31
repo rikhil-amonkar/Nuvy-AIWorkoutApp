@@ -41,3 +41,13 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 });
+
+function openFoodSearchForm() {
+    document.getElementById("foodForm").style.display = "block";
+}
+
+function closeForm() {
+    document.getElementById("foodForm").style.display = "none";
+}
+
+

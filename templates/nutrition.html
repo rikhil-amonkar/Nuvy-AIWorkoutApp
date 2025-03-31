@@ -31,7 +31,19 @@
         <div class="search-bar-container">
             <input type="text" id="search" class="search-bar" placeholder="Search for food..." autocomplete="off">
             <div id="autocomplete-results" class="autocomplete-dropdown"></div>
-            <button class="search-food">Search</button>
+            <button class="search-food-button" onclick="openFoodSearchForm()">Search</button>
+        </div>
+
+        <div class="form-popup" id="foodForm">
+            <form action="/action_page.php" class="food-form-container">
+                <h1>Food Selected</h1>
+
+                <label for="quantity"><b>Quantity</b></label>
+                <input type="text" placeholder="ex. 100 g" name="quantity" required>
+
+                <button type="submit" class="form-add-food">Add Food</button>
+                <button type="button" class="form-close-button" onclick="closeForm()">Close</button>
+            </form>
         </div>
 
         <main>
@@ -45,38 +57,41 @@
                         <span id="caloric-goal-num">1200 / 2800 kcal</span>
                     </div>
                     <div class="calorie-bar-container">
-                        <div class="calorie-consumed" style="width: 70%;"></div>
+                        <div class="calorie-consumed" style="width: 43%;"></div>
                     </div>
                     <h4>Protein</h4>
                     <div class="calorie-goal">
-                        <span id="caloric-goal-num">150 / 200 g</span>
+                        <span id="caloric-goal-num">40 / 200 g</span>
                     </div>
                     <div class="protein-bar-container">
-                        <div class="protein-consumed" style="width: 70%;"></div>
+                        <div class="protein-consumed" style="width: 20%;"></div>
                     </div>
                     <h4>Carbohydrates</h4>
                     <div class="calorie-goal">
-                        <span id="caloric-goal-num">200 / 300 g</span>
+                        <span id="caloric-goal-num">100 / 300 g</span>
                     </div>
                     <div class="carbs-bar-container">
-                        <div class="carbs-consumed" style="width: 70%;"></div>
+                        <div class="carbs-consumed" style="width: 33%;"></div>
                     </div>
                     <h4>Fats</h4>
                     <div class="calorie-goal">
-                        <span id="caloric-goal-num">40 / 100 g</span>
+                        <span id="caloric-goal-num">25 / 100 g</span>
                     </div>
                     <div class="fats-bar-container">
-                        <div class="fats-consumed" style="width: 70%;"></div>
+                        <div class="fats-consumed" style="width: 25%;"></div>
                     </div>
                 </section>
 
                 <section class="meals">
                     <h3 class="section-titles">Today's Meals</h3>
                     <ul id="meal-list">
-                        <li><strong>Breakfast:</strong> Oatmeal with Banana</li>
-                        <li><strong>Lunch:</strong> Grilled Chicken Salad</li>
-                        <li><strong>Dinner:</strong> Salmon with Vegetables</li>
-                        <li><strong>Snacks:</strong> Almonds & Greek Yogurt</li>
+                        <section class="breakfast">
+                            <h3>Breakfast</h3>
+                            <container class="breakfast-container">
+                                <h5 id="breakfast-meal-added">Placeholder</h5>
+                                <span><strong>Quanity:</strong> 100 g</span>
+                            </container>
+                        </section>
                     </ul>
                 </section>
             </div>

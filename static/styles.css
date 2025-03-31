@@ -29,6 +29,15 @@ h4 {
     margin-bottom: 10px;
 }
 
+.introducing-header {
+    font-size: 35px;
+    font-weight: bold;
+}
+
+.sub-text {
+    color: #04AA6D;
+}
+
 .logo-text {
     font-size: 30px;
     font-weight: bold;
@@ -75,11 +84,34 @@ h4 {
     gap: 20px;
 }
 
+.dashboard-grid-home {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+    text-align: left;
+}
+
+.home-page {
+    vertical-align: middle;
+    justify-content: center;
+    align-items: center;
+}
+
 .daily-calories, .meals, .log-food {
     background: white;
-    padding: 15px;
+    padding: 10px 40px 20px 30px;
     border-radius: 10px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.projector-info-container {
+    background: white;
+    padding: 10px 40px 20px 30px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    width: 500px;
+    height: 400px;
+    position: relative;
 }
 
 .calorie-bar-container, .protein-bar-container, .carbs-bar-container, .fats-bar-container {
@@ -145,29 +177,83 @@ h4 {
     box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
 }
 
-.search-food {
+.search-food-button {
     color: #ffffff;
     width: 100px;
     font-size: 16px;
     background-color: #000;
-    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
     border: none;
     border-radius: 25px;
-    margin-left: 20px;
+    margin-left: 15px;
 }
 
-.search-food:hover {
+.search-food-button:hover {
     background-color: #a8a8a8;
+}
+
+.get-started {
+    color: #ffffff;
+    width: 150px;
+    font-size: 16px;
+    background-color: #04AA6D;
+    border: none;
+    border-radius: 25px;
+    padding: 10px;
+    font-weight: bold;
+}
+
+.form-popup {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 550px;
+    height: 600px;
+    background: white;
+    padding: 30px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+    border-radius: 10px;
+    z-index: 1000;
+}
+.form-container {
+    text-align: center;
+}
+.form-container input[type=text] {
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+.form-container button {
+    width: 100%;
+    padding: 10px;
+    margin-top: 10px;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+}
+.form-add-food {
+    background-color: #04AA6D;
+    color: white;
+}
+.form-close-button {
+    background-color: red;
+    color: white;
 }
 
 .autocomplete-dropdown {
     position: absolute;
+    margin-top: 50px;
+    margin-right: 130px;
     width: 100%;
     max-width: 400px;
     background: #ffffff;
     border-radius: 15px;
     box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
-    overflow: hidden;
+    overflow: scroll;
+    max-height: 500px;
     z-index: 1000;
     display: none;
 }
