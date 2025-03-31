@@ -36,21 +36,6 @@ X_test_scaled = X_scaler.transform(X_test)
 model = LinearRegression()
 model.fit(X_train_scaled, y_train)
 
-# Get the coefficients
-coef = model.coef_[0]
-
-# Create a DataFrame for better visibility
-coef_df = pd.DataFrame({
-    'Feature': X.columns,
-    'Coefficient': coef
-})
-
-# Sort by absolute value of the coefficient to see impact
-coef_df['Abs_Coefficient'] = coef_df['Coefficient'].abs()
-coef_df = coef_df.sort_values(by='Abs_Coefficient', ascending=False)
-
-print(coef_df)
-
 # Make predicitions
 predicition = model.predict(X_test_scaled)
 
@@ -65,16 +50,16 @@ print(f"This model is {accuracy_score:.2f}% accurate.")
 
 #********TEST THE MODEL********
 
-# Example input data (e.g., Age=28, Gender=1, Weight=70, Height=1.75, Session Duration=1.2, Workout Frequency=4, BMI=22, Workout Type=Cardio)
-new_data = pd.DataFrame([[25, 0, 67, 1.65, 1, 6, 25, 0]], 
-                        # Make sure the values are in the same order and have the same number of features as the data used to train the model.
-                        columns=['Age', 'Gender', 'Weight (kg)', 'Height (m)', 'Session_Duration (hours)', 'Workout_Frequency (days/week)', 'BMI', 'Workout_Type'])
+# # Example input data (e.g., Age=28, Gender=1, Weight=70, Height=1.75, Session Duration=1.2, Workout Frequency=4, BMI=22, Workout Type=Cardio)
+# new_data = pd.DataFrame([[25, 0, 67, 1.65, 1, 6, 25, 0]], 
+#                         # Make sure the values are in the same order and have the same number of features as the data used to train the model.
+#                         columns=['Age', 'Gender', 'Weight (kg)', 'Height (m)', 'Session_Duration (hours)', 'Workout_Frequency (days/week)', 'BMI', 'Workout_Type'])
 
-# Scale the new input data using the same scaler as the training data
-new_data_scaled = X_scaler.transform(new_data)
+# # Scale the new input data using the same scaler as the training data
+# new_data_scaled = X_scaler.transform(new_data)
 
-# Predict the calorie burn for this new data point
-predicted_calories = model.predict(new_data_scaled)
+# # Predict the calorie burn for this new data point
+# predicted_calories = model.predict(new_data_scaled)
 
 # Define activity factor based on workout frequency
 def get_activity_factor(workout_frequency):
@@ -102,31 +87,62 @@ def calculate_bmr(user_age, user_sex, user_height, user_weight, workout_frequenc
 
     return daily_bmr
 
-# Assign user features
-age = new_data['Age'].iloc[0]
-sex = "M" if new_data['Gender'].iloc[0] == 1 else "F"
-height = float(new_data['Height (m)'].iloc[0] * 100)
-weight = float(new_data['Weight (kg)'].iloc[0])
+# # Assign user features
+# age = new_data['Age'].iloc[0]
+# sex = "M" if new_data['Gender'].iloc[0] == 1 else "F"
+# height = float(new_data['Height (m)'].iloc[0] * 100)
+# weight = float(new_data['Weight (kg)'].iloc[0])
 
 def projector_main():
 
-    # Assign workout type based on data
-    if new_data['Workout_Type'].iloc[0] == 0:
-        workout_type = "Cardio"
-    elif new_data['Workout_Type'].iloc[0] == 1:
-        workout_type = "HIIT"
-    elif new_data['Workout_Type'].iloc[0] == 2:
-        workout_type = "Strength"
+    # Let user input data
+    age = int(input("Enter your age: "))
+    sex = str(input("Enter your sex (M/F): "))
+
+    # Change sex to numeric for model input
+    if sex.upper == "M":
+        sex_int = 1
     else:
-        workout_type = "Yoga"
+        sex_int = 0
+
+    height = float(input("Enter your height in cm: "))
+    weight = float(input("Enter your weight in kg: "))
+    session_duration = float(input("How long are your workouts usually (hours): "))
+    workout_frequency = int(input("How many times a week do you workout (days): "))
+    bmi = float(weight / ((height / 100) ** 2))
+
+    # Workout type choices
+    print("\n1. Cardio")
+    print("\n2. HIIT")
+    print("\n3. Strength")
+    print("\n4. Yoga")
+    workout_type = int(input("\nWhat type of workout do you do mainly: "))
+
+    user_data = pd.DataFrame([[age, sex_int, weight, (height / 100), session_duration, workout_frequency, bmi, workout_type]], columns=['Age', 'Gender', 'Weight (kg)', 'Height (m)', 'Session_Duration (hours)', 'Workout_Frequency (days/week)', 'BMI', 'Workout_Type'])
+
+    # Scale the new input data using the same scaler as the training data
+    user_data_scaled = X_scaler.transform(user_data)
+
+    # Predict the calorie burn for this new data point
+    predicted_calories = model.predict(user_data_scaled)
+
+    # Assign workout type based on data
+    if workout_type == 0:
+        workout_type_str = "Cardio"
+    elif workout_type == 1:
+        workout_type_str = "HIIT"
+    elif workout_type == 2:
+        workout_type_str = "Strength"
+    else:
+        workout_type_str = "Yoga"
 
     # Calculate user BMR
-    BMR = float(calculate_bmr(age, sex, height, weight, new_data['Workout_Frequency (days/week)'].iloc[0]))
+    BMR = float(calculate_bmr(age, sex, height, weight, workout_type))
     calories_burned_per_session = float(predicted_calories[0][0]) / 2 # For more reasonable calories burned
     daily_cal = float(BMR + calories_burned_per_session)
 
     # Predicted total calories for a week
-    workouts_per_week = new_data['Workout_Frequency (days/week)'].iloc[0]
+    workouts_per_week = user_data['Workout_Frequency (days/week)'].iloc[0]
     weekly_calories = float(calories_burned_per_session * int(workouts_per_week))
     
     # Print the predicted result
@@ -135,10 +151,10 @@ def projector_main():
     print("Gender:", sex)
     print("Weight (kg):", weight)
     print("Height (cm):", height)
-    print("Average Session Duration (min):", int((new_data['Session_Duration (hours)'].iloc[0] * 60)))
-    print(f"Main Training Type: {workout_type}")
-    print("Workout Freqency:", int(new_data['Workout_Frequency (days/week)'].iloc[0]), "days a week")
-    print("BMI:", new_data['BMI'].iloc[0])
+    print("Average Session Duration (min):", session_duration * 60)
+    print(f"Main Training Type: {workout_type_str}")
+    print("Workout Freqency:", workout_frequency, "days a week")
+    print("BMI:", bmi)
     print(f"\nPredicted Calories Burned Per Session: {calories_burned_per_session:.2f} kcal")
     print(f"Predicted Weekly Calories Burned (based on sessions): {weekly_calories:.2f} kcal")
     print(f"You average BMR is about: {BMR:.2f} kcal")
@@ -162,17 +178,17 @@ def projector_main():
 
     # Display caloric change needed to reach weight but check conditions and warn if change is harmful
     if goal_weight > weight:
-        print("Great! So you need to go on a bulking phase.")
+        print("\nGreat! So you need to go on a bulking phase.")
         goal_cal = float(daily_cal + daily_caloric_change)
         print(f"You need to eat about {goal_cal:.2f} kcal per day to reach your goal weight of {goal_weight:.2f} kg in {time_frame} weeks.")
         if float(abs(goal_cal - daily_cal)) > 1500:
-            print("Would NOT recommend such a caloric surplus. Could be VERY unhealthy.")
+            print(f"Would NOT recommend such a caloric surplus. A {daily_caloric_change} increase in your daily calories could be VERY unhealthy.")
     elif goal_weight < weight:
         goal_cal = float(daily_cal - daily_caloric_change)
-        print("Great! So you need to go on a cutting phase.")
+        print("\nGreat! So you need to go on a cutting phase.")
         print(f"You need to eat about {goal_cal:.2f} kcal per day to reach your goal weight of {goal_weight:.2f} kg in {time_frame} weeks.")
         if float(abs(goal_cal - daily_cal)) > 1500:
-            print("Would NOT recommend such a caloric deficit. Could be VERY unhealthy.")
+            print(f"Would NOT recommend such a caloric deficit. A {daily_caloric_change} decrease in your daily calories could be VERY unhealthy.")
     else:
         print("Oh wow! You already hit your goal. Congrats!")
 

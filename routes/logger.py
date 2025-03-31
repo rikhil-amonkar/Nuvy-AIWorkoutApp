@@ -1,4 +1,8 @@
 import pandas as pd
+from flask import Blueprint, render_template, request, jsonify
+
+# Initialize blueprint for recommender
+logger = Blueprint("logger", __name__)
 
 # Load the data and select only desired columns
 nutrients_data = pd.read_csv("datasets/large_food_nutrition_dataset.csv", 
@@ -31,8 +35,26 @@ nutrients_data_df.fillna({'Sodium': nutrients_data_df['Sodium'].mean()}, inplace
 nutrients_data_df.fillna({'Sugars': nutrients_data_df['Sugars'].mean()}, inplace=True)
 nutrients_data_df.fillna({'Trans Fats': nutrients_data_df['Trans Fats'].mean()}, inplace=True)
 
+# Selection option column for food searc
+options = nutrients_data_df['Food Name'].astype(str).tolist()
+
+# Connect flask routes
+@logger.route("/")
+def index():
+    return render_template("nutrition.html")
+
+@logger.route("/search")
+def search():
+    query = request.args.get('q', '').lower()
+    if not query:
+        return jsonify([])
+    
+    # Filter options as user inputs text
+    results = [option for option in options if query in option.lower()]
+    return jsonify(results[:20]) # Limits to 20 results
+
 # Running the entire program
-if __name__ == "__main__":
+def logger_main():
 
     # Set initial empty values for food log and macros
     food_log = {}

@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meal Recommender</title>
+    <link rel="stylesheet" href="/static/styles.css">
+    <script src="/static/script.js" defer></script>
+</head>
+<body>
+    <header class="header">
+        <img src="/static/images/LogoAppWhite.PNG" alt="Nutrivae Logo" height="80" width="80">
+        <div class="logo">Nutrivae</div>
+        <nav class="navbar">
+            <a class="link-tabs" href="index.html">Home</a>
+            <a class="link-tabs" href="nutrition.html">Food Log</a>
+            <a class="link-tabs" href="workouts.html">Workouts</a>
+            <a class="link-tabs" href="meal-recommender.html">Meal Recommender</a>
+            <a class="link-tabs" href="about-author.html">About</a>
+        </nav>
+    </header>
+
+    <main class="container">
+        <h1 class="dashboard-title">Meal Recommender</h1>
+        <p>Find meals tailored to your dietary needs and preferences.</p>
+        
+        <form id="meal-form">
+            <label for="diet">Select your diet:</label>
+            <select id="diet" name="diet">
+                <option value="vegan">Vegan</option>
+                <option value="vegetarian">Vegetarian</option>
+                <option value="keto">Keto</option>
+                <option value="paleo">Paleo</option>
+                <option value="omnivore">Omnivore</option>
+            </select>
+
+            <label for="calories">Calorie Range:</label>
+            <input type="number" id="calories" name="calories" placeholder="e.g., 2000">
+
+            <button type="submit">Get Recommendations</button>
+        </form>
+
+        <div id="meal-results"></div>
+    </main>
+</body>
+</html>

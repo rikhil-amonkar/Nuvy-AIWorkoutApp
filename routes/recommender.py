@@ -45,7 +45,7 @@ def recommend_meals(calories_left, meals_wanted):
         rec_meal = food_data_df.iloc[index]
         meal_name = rec_meal['Recipe_name']
 
-        # Check for meal duplicates
+        # Avoid meal duplicates
         if meal_name in plan_meals:
             continue
 
@@ -154,8 +154,3 @@ def recommender_main():
 
     return user_age, user_sex, user_height, user_weight
 
-def run_recommender():
-    recommender_main()
-
-if __name__ == "__main__":
-    run_recommender()

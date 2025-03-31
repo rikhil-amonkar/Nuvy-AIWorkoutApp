@@ -2,35 +2,85 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE-edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Formance | An AI-Powered Fitness & Nutrition Assistant</title>
-
+    <title>Nutrivae - AI Nutrition Tracker</title>
     <link rel="stylesheet" href="/static/styles.css">
+    <script src="/static/script.js" defer></script>
 </head>
 <body>
+    <div class="container">
+        <header class="header">
+            <div class="logo-container">
+                <img class="logo-simple" src="/templates/images/SimpleLogo1.PNG" alt="Nutrivae Logo" height="100" width="100">
+                <span class="logo-text">Nutrivae</span>
+            </div>
+            <nav class="navbar">
+                <a class="link-tabs" href="index.html">Home</a>
+                <a class="link-tabs" href="nutrition.html">Food Log</a>
+                <a class="link-tabs" href="workouts.html">Workouts</a>
+                <a class="link-tabs" href="meal-recommender.html">Meal Recommender</a>
+                <a class="link-tabs" href="about-author.html">About</a>
+            </nav>
+        </header>
 
-    <header class="header">
-        <a href="#" class="title">Nutrition with Formance</a>
+        <div>
+            <h2 class="calorie-tracker-title">Food Log</h2>
+        </div>
 
-        <nav class="navbar">
-            <a href="index.html">Home</a>
-            <a href="nutrition.html">Nutrition</a>
-            <a href="workouts.html">Workouts</a>
-            <a href="project-background.html">Project Background</a>
-            <a href="about-author.html">About Author</a>
-        </nav>
-    </header>
+        <!-- Search Bar Moved to the Top in a Bubbly Format -->
+        <div class="search-bar-container">
+            <input type="text" id="search" class="search-bar" placeholder="Search for food..." autocomplete="off">
+            <div id="autocomplete-results" class="autocomplete-dropdown"></div>
+            <button class="search-food">Search</button>
+        </div>
 
-    <section class="nutrition_input">
-        <form>
-            <label for="fname">First name:</label><br>
-            <input type="text" id="fname" name="fname"><br>
-            <label for="lname">Last name:</label><br>
-            <input type="text" id="lname" name="lname">
-        </form>
-    </section>
+        <main>
+            <h1 class="dashboard-title">Nutrition Dashboard</h1>
+            
+            <div class="dashboard-grid">
+                <section class="daily-calories">
+                    <h2 class="section-titles">Total Macros</h2>
+                    <h4>Calories</h4>
+                    <div class="calorie-goal">
+                        <span id="caloric-goal-num">1200 / 2800 kcal</span>
+                    </div>
+                    <div class="calorie-bar-container">
+                        <div class="calorie-consumed" style="width: 70%;"></div>
+                    </div>
+                    <h4>Protein</h4>
+                    <div class="calorie-goal">
+                        <span id="caloric-goal-num">150 / 200 g</span>
+                    </div>
+                    <div class="protein-bar-container">
+                        <div class="protein-consumed" style="width: 70%;"></div>
+                    </div>
+                    <h4>Carbohydrates</h4>
+                    <div class="calorie-goal">
+                        <span id="caloric-goal-num">200 / 300 g</span>
+                    </div>
+                    <div class="carbs-bar-container">
+                        <div class="carbs-consumed" style="width: 70%;"></div>
+                    </div>
+                    <h4>Fats</h4>
+                    <div class="calorie-goal">
+                        <span id="caloric-goal-num">40 / 100 g</span>
+                    </div>
+                    <div class="fats-bar-container">
+                        <div class="fats-consumed" style="width: 70%;"></div>
+                    </div>
+                </section>
 
-    <script src="/static/script.js"></script>
+                <section class="meals">
+                    <h3 class="section-titles">Today's Meals</h3>
+                    <ul id="meal-list">
+                        <li><strong>Breakfast:</strong> Oatmeal with Banana</li>
+                        <li><strong>Lunch:</strong> Grilled Chicken Salad</li>
+                        <li><strong>Dinner:</strong> Salmon with Vegetables</li>
+                        <li><strong>Snacks:</strong> Almonds & Greek Yogurt</li>
+                    </ul>
+                </section>
+            </div>
+        </main>
+    </div>
 </body>
 </html>
