@@ -12,17 +12,17 @@
         <img src="/templates/images/SimpleLogo1.PNG" alt="Nutrivae Logo" height="100" width="100">
         <div class="logo">Nutrivae</div>
         <nav class="navbar">
-            <a class="link-tabs" href="index.html">Home</a>
-            <a class="link-tabs" href="nutrition.html">Food Log</a>
-            <a class="link-tabs" href="workouts.html">Workouts</a>
-            <a class="link-tabs" href="meal-recommender.html">Meal Recommender</a>
-            <a class="link-tabs" href="about-author.html">About</a>
+            <a href="/templates/index.html">Home</a>
+            <a href="/templates/nutrition.html">Food Log</a>
+            <a href="/templates/workouts.html">Workouts</a>
+            <a href="/templates/meal-recommender.html">Meal Recommender</a>
+            <a href="/templates/about-author.html">About</a>
         </nav>
     </header>
 
     <section class="dashboard-grid">
         <div class="projector-info-container">
-            <form class="goal-form">
+            <form id="goal-form" class="goal-form">
                 <label for="height"><b>Height</b></label>
                 <input type="text" placeholder="ex. 170 cm" name="height" required>
                 <label for="weight"><b>Weight</b></label>
@@ -35,8 +35,7 @@
                     <option value="Male">
                     <option value="Female">
                 </datalist>
-                <button type="submit" class="form-add-food">Add Food</button>
-                <button type="button" class="form-close-button" onclick="closeForm()">Close</button>
+                <button type="submit" class="submit-info">Submit</button>
             </form>
             </form>
         </div>

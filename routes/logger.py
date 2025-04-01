@@ -43,6 +43,7 @@ options = nutrients_data_df['Food Name'].astype(str).tolist()
 def index():
     return render_template("nutrition.html")
 
+# Route to search for the food and return the found list
 @logger.route("/search")
 def search():
     query = request.args.get('q', '').lower()
@@ -53,74 +54,65 @@ def search():
     results = [option for option in options if query in option.lower()]
     return jsonify(results[:20]) # Limits to 20 results
 
-# Running the entire program
+# Route the to the food entries
+@logger.route("log_food", methods=['POST'])
+def log_food():
+    # Assign values from frontend inputs
+    food_name = jsonify.json.get('food_name')
+    grams = jsonify.json.get('grams')
+
+    # Match the food name input to the correct dataset value
+    matching_rows = nutrients_data_df[nutrients_data_df['Food Name'].str.contains(food_name, case=False, na=False)]
+
+    # Check for error in locating food
+    if matching_rows.empty:
+        return jsonify({"error": "Food not found"}), 404
+    
+    # Select first matching food from search
+    selected_food = matching_rows.iloc[0]
+    grams_ratio = grams / 100
+
+    # Extract and asign components of selected food
+    food_name = selected_food['Food Name']
+    food_cals = selected_food['Calories'] * grams_ratio # Adjust the calories based on grams
+    food_protein = selected_food['Protein'] * grams_ratio # Adjust the protein based on grams
+    food_carbs = selected_food['Carbs'] * grams_ratio # Adjust the carbs based on grams
+    food_fats = selected_food['Fats'] * grams_ratio # Adjust the fat based on grams
+
+    # Return the calculated values
+    return jsonify({
+        "food_name": selected_food['Food Name'],
+        "calories": round(food_cals, 2),
+        "protein": round(food_protein, 2),
+        "carbs": round(food_carbs, 2),
+        "fats": round(food_fats, 2),
+        "grams": grams
+    })
+
+# Initialize the food log
+food_log = []
+
+# Get the food log based on user rinput
+@logger.route("/get_food_log", methods=['POST'])
+def get_food_log():
+    return jsonify(food_log)
+
+# Clear the food log when needed
+@logger.route("/clear_food_log", methods=["POST"])
+def clear_food_log():
+    global food_log
+    food_log = []  # Clear the food log
+    return jsonify({"message": "Food log cleared"})
+
+# Flask app execution
 def logger_main():
+    from flask import Flask
 
-    # Set initial empty values for food log and macros
-    food_log = {}
-    total_calories = 0
-    total_protein = 0
-    total_carbs = 0
-    total_fats = 0
+    app = Flask(__name__)
+    app.register_blueprint(logger, url_prefix="/logger")
 
-    # Continuously allow user to enter food until done
-    while True:
-        food = input("Enter a food to track (or type 'exit' to quit): ").strip()
-        if food.lower() == "exit": # Break out if user is done entering foods
-            break
+    app.run(debug=True)
 
-        # Fix the string matching issue
-        matching_rows = nutrients_data_df[nutrients_data_df['Food Name'].str.contains(food, case=False, na=False)]
 
-        # Display all rows with desired user food
-        if not matching_rows.empty:
+# mae: 41.61904761904762 rmse: 71.62451695174934 mape: 13.25802978184093
 
-            valid_choices = {}
-            for i, (index, row) in enumerate(matching_rows.iterrows(), start=1):
-                print(f"\n{i}. {row['Food Name']}") # Print the food name
-                print(f"Calories(kcal) per 100(g): {row['Calories']}") # Print the food calorie count
-                valid_choices[i] = row
-
-            while True:
-                try:
-                    # Allow user to select which food they will log
-                    selection = input("\nEnter which food you want to log (or type 'exit' to quit): ").strip()
-                    if selection.lower() == 'exit':
-                        break
-                    
-                    # Process the selection and display components of food
-                    selection = int(selection)
-                    if selection in valid_choices:
-                        grams = int(input("Enter the amount you consumed (grams): "))
-                        selected_food = valid_choices[selection]
-                        grams_ratio = grams / 100 # Ratio the grams consumed based on 100g kcal averages
-                        
-                        # Extract and asign components of selected food
-                        food_name = selected_food['Food Name']
-                        food_cals = selected_food['Calories'] * grams_ratio # Adjust the calories based on grams
-                        food_protein = selected_food['Protein'] * grams_ratio # Adjust the protein based on grams
-                        food_carbs = selected_food['Carbs'] * grams_ratio # Adjust the carbs based on grams
-                        food_fats = selected_food['Fats'] * grams_ratio # Adjust the fat based on grams
-
-                        # Log the food, calories, and grams into a nested dictionary
-                        food_log[food_name] = {"Calories(kcal)": round(food_cals, 2), "Grams(g)": round(grams, 2)}
-
-                        total_calories += food_cals # Update total calories
-                        total_protein += food_protein # Update total protein
-                        total_carbs += food_carbs # Update total carbs
-                        total_fats += food_fats # Update total fat
-
-                        print(f"You added {grams} of {food_name} to your log.")
-                        print(f"\nCurrent food log:\n{food_log}")
-                        print(f"\nTotal Calories Today: {total_calories:.2f} kcal")
-                        print(f"Total Protien Intake Today: {total_protein:.2f} g")
-                        print(f"Total Carb Intake Today: {total_carbs:.2f} g")
-                        print(f"Total Fat Intake Today: {total_fats:.2f} g")
-                    else:
-                        print("Invalid selectio. Please enter a valid food choice.")
-                except ValueError: # Check for input error
-                    print("Invalid input. Please enter a numeric value.")
-                except Exception as e: # Check for input error
-                    print(f"Error: {e}")
-        else:
-            print("Food not found.")

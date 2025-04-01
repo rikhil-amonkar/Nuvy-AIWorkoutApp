@@ -28,10 +28,17 @@ features = scalar.fit_transform(features)
 knn = NearestNeighbors(n_neighbors=5)
 knn.fit(features)
 
-# Calculate the nearest neighbors
+# Route the recommended meals using the nearest neighbors
+@recommender.route("/recommend_meals", methods=['POST'])
 def recommend_meals(calories_left, meals_wanted):
+    # Recieve data from frontend
+    data = request.get_data()
+    calories_left = data.get("calories_left", 0)
+    meals_wanted = data.get("meals_wanted", 1)
+
+    # Check if no calories are left to make meals
     if calories_left <= 0:
-        return None, 0
+        return jsonify({"error": "No calories left to allocate"}), 400
     
     # Normalize the calories
     user_input = np.array([[calories_left / meals_wanted]]) # Divide calories left into even meals
@@ -63,102 +70,54 @@ def recommend_meals(calories_left, meals_wanted):
         if len(plan_meals) >= meals_wanted:
             break
 
-    return plan_meals
+    return jsonify({"recommended meals": plan_meals})
 
-# Calculate the average bmr without activity level
-def calculate_bmr(user_age, user_sex, user_height, user_weight):
+# Route to average BMR from user data
+@recommender.route("/calculate_bmr", methods=['POST'])
+def calculate_bmr():
+    # Recieve the data from the frontend
+    data = request.get_json()
+    user_age = data.get("age")
+    user_sex = data.get("sex")
+    user_height = data.get("height")
+    user_weight = data.get("weight")
     
-    # Basal Metabolic Rate (BMR) calculation based on sex and Harris-Benedict equation
-    if user_sex.upper() == "M":
+    # Check for missing values
+    if not all([user_age, user_sex, user_height, user_weight]):
+        return jsonify({"error": "Missing required parameters"}), 400
+    
+    # Convert sex to proper numeric value and calculate BMR
+    if user_sex == "Male":
         BMR = (10 * user_weight) + (6.25 * user_height) - (5 * user_age) + 5
-        daily_bmr = BMR * 1.2
     else:
         BMR = (10 * user_weight) + (6.25 * user_height) - (5 * user_age) - 161
-        daily_bmr = BMR * 1.2
-
-    return daily_bmr
-
-# Calculate the daily calories for user based on activity level
-def calculate_daily_calories(daily_bmr, activity_level):
-    if activity_level == 1:
-        daily_cal = daily_bmr * 1.05
-    elif activity_level == 2:
-        daily_cal = daily_bmr * 1.15
-    elif activity_level == 3:
-        daily_cal = daily_bmr * 1.30
-    elif activity_level == 4:
-        daily_cal = daily_bmr * 1.45
-    else:
-        daily_cal = daily_bmr * 1.585
-
-    return daily_cal
-
-def recommendor_projection():
-    # User body composition
-    user_age = int(input("Enter your age: "))
-    user_sex = str(input("Enter your sex (M/F): "))
-    user_height = int(input("Enter your height in cm: "))
-    user_weight = int(input("Enter your weight in kg: "))
-
-    return user_age, user_sex, user_height, user_weight 
     
-# Run the program
-def recommender_main():
+    daily_bmr = BMR * 1.2
+    return jsonify({"BMR": daily_bmr})
 
-    user_age, user_sex, user_height, user_weight = recommendor_projection()
-    daily_bmr = calculate_bmr(user_age, user_sex, user_height, user_weight)
-
-    # Calculate daily calories with activity level
-    print(f"\nYour daily BMR is: {daily_bmr:.2f} kcal")
-    print("This represents the number of calories your body needs without exercise taken into account.\n")
-    print("Now to calculate your daily calories, we need to know your activity level.")
-    print("\n1. Sedentary (little or no exercise)")
-    print("\n2. Lightly active (light exercise/sports 1-3 days/week)")
-    print("\n3. Moderately active (moderate exercise/sports 3-5 days/week)")
-    print("\n4. Very active (hard exercise/sports 6-7 days a week)")
-    print("\n5. Super active (very hard exercise & physical job or 2x training)")
-    activity_level = int(input("\nEnter your activity level: "))
-    daily_cal = calculate_daily_calories(daily_bmr, activity_level)
-
-    # Calculate cutting and bulking calories
-    print(f"\nThe daily calories you need to maintain your weight is: {daily_cal:.2f} kcal")
-    cutting_calories = daily_cal - 500
-    bulk_calories = daily_cal + 500
-    print(f"\nTo lose 1 lb per week, you need to consume {cutting_calories:.2f} kcal daily.")
-    print(f"To gain 1 lb per week, you need to consume {bulk_calories:.2f} kcal daily.")
-
-    # Calculate the calories left for the user
-    calories_consumed = int(input("\nEnter the number of calories you have consumed today: "))
-    calories_left = daily_cal - calories_consumed
-
-    # Make sure the user has calories left
-    if calories_left >= 0:
-
-        # Ask user for their number of meals
-        meals_wanted = int(input("How many more meals do you want to eat today?: "))
-        print(f"\nHere is a meal plan consisting of {meals_wanted} meals to reach your {calories_left:.2f} kcal for the day:\n")
-
-        # Update the nearest-neighbor meal based on meals wanted
-        plan_meals = recommend_meals(calories_left, meals_wanted)
-        for i, (meal_name, meal_calories, meal_protein, meal_carbs, meal_fats, meal_diet) in enumerate(plan_meals, start=1):
-            if meal_name is None:
-                print("No suitable meal found.")
-                break
-
-            # Print each meal and update new calories left
-            print(f"{i}. {meal_name}\n   Diet Type: {meal_diet}\n   Calories(kcal): {meal_calories:.2f}\n   Protein(g): {meal_protein:.2f}\n   Carbs(g): {meal_carbs:.2f}\n   Fats(g): {meal_fats:.2f}\n")
-            calories_left -= meal_calories
-
-            if calories_left <= 0:
-                break
+# Route to calculate daily calories from user data
+@recommender.route("/calculate_daily_calories", methods=['POST'])
+def calculate_daily_calories():
+    # Recieve user data from the frontend
+    data = request.get_json()
+    daily_bmr = data.get("daily_bmr")
+    activity_level = data.get("activity_level")
     
-    else:
-        print("You have exceeded your daily calorie intake. Please try again tomorrow.")
-        print("Thank you for using the meal recommendation system!")
+    # Check for no bmr or activity level conditions
+    if daily_bmr is None or activity_level is None:
+        return jsonify({"error": "Missing required parameters"}), 400
 
-    return user_age, user_sex, user_height, user_weight
+    # Multiply BMR for activity level measures
+    activity_multipliers = {1: 1.05, 2: 1.15, 3: 1.30, 4: 1.45, 5: 1.585}
+    daily_cal = daily_bmr * activity_multipliers.get(activity_level, 1.2)
+    
+    return jsonify({"daily_calories": daily_cal})
 
-# Connect flask routes
 @recommender.route("/")
 def index():
     return render_template("meal-recommender.html")
+
+# Time without KNN: 0.000570 seconds
+# Time with KNN: 0.000311 seconds
+# 45.44% improvement in time spent planning
+
